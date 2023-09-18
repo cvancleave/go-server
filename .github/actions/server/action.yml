@@ -1,0 +1,15 @@
+name: Server
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Build
+      run: |
+        echo 'Build server here' >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Build
+      run: |
+        echo 'Push server to docker/ecr/artifactory/etc here' >> $GITHUB_OUTPUT
+      shell: bash

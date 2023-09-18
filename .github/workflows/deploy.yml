@@ -1,0 +1,55 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+jobs:
+
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up environment variables
+        run: |
+          echo "TAG_1=go-server-tag-1" >> $GITHUB_ENV
+        shell: bash
+    outputs:
+      env: ${{ toJson(env) }}
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: [ setup ]
+    env: ${{ fromJson(needs.init.outputs.env) }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: 1.21
+      - name: Run tests
+        run: |
+          make test
+        shell: bash
+
+  server:
+    name: Server
+    runs-on: ubuntu-latest
+    needs: [ setup, test ]
+    env: ${{ fromJson(needs.init.outputs.env) }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version: 1.21
+      - uses: ./.github/actions/server
+
+  terraform:
+    name: Terraform
+    runs-on: ubuntu-latest
+    needs: [ setup, test, server ]
+    env: ${{ fromJson(needs.init.outputs.env) }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/terraform
+  

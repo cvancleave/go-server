@@ -1,0 +1,36 @@
+name: Terraform
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Format
+      id: fmt
+      run: |
+        cd ./tf/go-server
+        terraform fmt || true
+      shell: bash
+
+    - name: Init
+      run: |
+        cd ./tf/go-server
+        terraform init -reconfigure
+      shell: bash
+
+    - name: Validate
+      run: |
+        cd ./tf/go-server
+        terraform validate
+      shell: bash
+          
+    - name: Plan
+      run: |
+        cd ./tf/go-server
+        terraform plan
+      shell: bash
+
+    - name: Apply
+      run: |
+        cd ./tf/go-server
+        terraform apply -auto-approve
+      shell: bash
