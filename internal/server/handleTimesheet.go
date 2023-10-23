@@ -48,7 +48,7 @@ func (s *server) handlePostTimesheet(w http.ResponseWriter, r *http.Request, _ h
 		return
 	}
 
-	log.Debugf("creating timesheet for user id: %d", timesheet.UserID)
+	log.Debugf("creating timesheet for user id: %d", timesheet.UserId)
 
 	// insert timesheet into database
 	if err := s.database.InsertTimesheet(timesheet); err != nil {

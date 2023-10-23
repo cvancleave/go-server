@@ -39,7 +39,7 @@ func (s *server) handleLogin(w http.ResponseWriter, r *http.Request, _ httproute
 	}
 
 	// respond with jwt
-	token, err := utils.NewToken(dbUser.Email, dbUser.ID, s.config.TokenKey, s.config.TokenIssuer, s.config.TokenTimeout)
+	token, err := utils.NewToken(dbUser.Email, dbUser.Id, s.config.TokenKey, s.config.TokenIssuer, s.config.TokenTimeout)
 	if err != nil || token == "" {
 		log.Errorf("error creating token: %s", err)
 		utils.RespondError(w, 500, "error creating token")

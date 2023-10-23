@@ -14,7 +14,7 @@ func (db *DB) GetUserByEmail(email string) (*models.User, error) {
 	row := stmt.QueryRow(email)
 
 	var user models.User
-	if err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Position); err != nil {
+	if err = row.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.Position); err != nil {
 		return nil, err
 	}
 

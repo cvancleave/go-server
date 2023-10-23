@@ -71,7 +71,7 @@ func (c *client) postTimesheet(token string) {
 	endpoint := c.serverUrl + "/timesheet"
 
 	timesheet := &models.Timesheet{
-		UserID:        1,
+		UserId:        1,
 		DateWeek:      time.Now(),
 		DateSubmitted: time.Now(),
 	}
@@ -129,5 +129,7 @@ func (c *client) getTimesheets(token string) {
 		panic(err)
 	}
 
-	fmt.Printf("%+v", timesheets)
+	for _, t := range timesheets {
+		fmt.Println(t.Id)
+	}
 }

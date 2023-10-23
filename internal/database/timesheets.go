@@ -27,8 +27,8 @@ func (db *DB) GetTimesheetsByUserId(userId int) ([]models.Timesheet, error) {
 		var timesheet models.Timesheet
 		var dataJson string
 		if err = rows.Scan(
-			&timesheet.ID,
-			&timesheet.UserID,
+			&timesheet.Id,
+			&timesheet.UserId,
 			&timesheet.DateWeek,
 			&timesheet.DateSubmitted,
 			&dataJson,
@@ -58,7 +58,7 @@ func (db *DB) InsertTimesheet(timesheet models.Timesheet) error {
 	defer stmt.Close()
 
 	dataJson, _ := json.Marshal(timesheet.Data)
-	_, err = stmt.Exec(timesheet.UserID, timesheet.DateWeek, timesheet.DateSubmitted, dataJson)
+	_, err = stmt.Exec(timesheet.UserId, timesheet.DateWeek, timesheet.DateSubmitted, dataJson)
 	if err != nil {
 		return err
 	}
