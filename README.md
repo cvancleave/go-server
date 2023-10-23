@@ -28,6 +28,6 @@ Get config and start client, which creates a token and then hits the server endp
 
 ## Migrating the database
 
-Runs database migrations safely.
-- Setup database, and add to `flyway.conf` to direct flyway appropriately.
+Runs database migrations.
+- Setup database, and add to `flyway.conf` to direct flyway.
 - Run `cd database` and `flyway migrate`, or `flyway repair` to fix any issues.
