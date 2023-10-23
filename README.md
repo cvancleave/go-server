@@ -6,8 +6,8 @@ It includes:
 - Terraform for infrastructure.
 - Github actions for deployments.
 - Dockerfile for multi-step server build.
-- SQL database integration (soon!)
-- Flyway database migration (soon!)
+- SQL database integration.
+- Flyway database migration.
 
 Uses Go version `1.21` and the following packages:
 - `github.com/aws/aws-sdk-go-v2` for storing secret values.
@@ -26,3 +26,8 @@ Get config and start client, which creates a token and then hits the server endp
 - Make sure server config is setup in AWS secretsmanager.
 - Run `go run cmd/client/main.go`
 
+## Migrating the database
+
+Runs database migrations safely.
+- Setup database, and add to `flyway.conf` to direct flyway appropriately.
+- Run `cd database` and `flyway migrate`, or `flyway repair` to fix any issues.

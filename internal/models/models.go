@@ -1,12 +1,23 @@
 package models
 
+import "time"
+
 // User - holds information for a user
 type User struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`
+	Password string `json:"password"`
 	Position string `json:"position"`
-	Account  string `json:"account"`
+}
+
+// Timesheet - holds information for a users timesheet
+type Timesheet struct {
+	ID            int            `json:"id"`
+	UserID        int            `json:"user_id"`
+	DateWeek      time.Time      `json:"date_week"`
+	DateSubmitted time.Time      `json:"date_submitted"`
+	Data          map[string]any `json:"data"`
 }
 
 // ErrorResponse - holds error information for response

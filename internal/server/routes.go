@@ -12,8 +12,9 @@ func (s *server) routes() *httprouter.Router {
 
 	router := httprouter.New()
 
-	router.GET("/user", s.RequireAuth(s.getUserHandler))
-	router.POST("/user", s.RequireAuth(s.postUserHandler))
+	router.POST("/login", s.handleLogin)
+	router.GET("/timesheets", s.WithAuth(s.handleGetTimesheets))
+	router.POST("/timesheet", s.WithAuth(s.handlePostTimesheet))
 
 	// Enable CORS for other methods
 	router.GlobalOPTIONS = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

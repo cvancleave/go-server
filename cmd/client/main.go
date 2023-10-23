@@ -4,12 +4,12 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"go-server/internal/config"
 	"go-server/internal/models"
-	"go-server/internal/utils"
 	"net/http"
-
-	log "github.com/sirupsen/logrus"
+	"net/url"
+	"time"
 )
 
 type client struct {
@@ -18,12 +18,13 @@ type client struct {
 	http         *http.Client
 }
 
+// basic http client used for testing endpoints
 func main() {
 
 	// load server config
 	cfg, err := config.Load()
 	if err != nil {
-		log.Fatal("error loading config")
+		panic("error loading config")
 	}
 
 	// create handler
@@ -33,21 +34,78 @@ func main() {
 		http:         &http.Client{},
 	}
 
-	// create jwt token for authentication
-	token, err := utils.NewToken("userIDHere", cfg.TokenKey, cfg.TokenIssuer, cfg.TokenTimeout)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// use each endpoint
-	client.getUser(token)
-	client.postUser(token)
+	// test endpoints
+	token := client.login()
+	client.postTimesheet(token)
+	client.getTimesheets(token)
 }
 
-// getUser - sends an authenticated get request to the /user endpoint
-func (c *client) getUser(token string) {
+// login - test POST /login
+func (c *client) login() string {
 
-	endpoint := c.serverUrl + "/user?id=1"
+	endpoint := c.serverUrl + "/login"
+
+	formData := url.Values{
+		"email":    {"test@email.com"},
+		"password": {"testPassword"},
+	}
+
+	// send form
+	resp, err := http.PostForm(endpoint, formData)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	// get token response
+	token := ""
+	if err := json.NewDecoder(resp.Body).Decode(&token); err != nil {
+		panic(err)
+	}
+
+	return token
+}
+
+func (c *client) postTimesheet(token string) {
+
+	endpoint := c.serverUrl + "/timesheet"
+
+	timesheet := &models.Timesheet{
+		UserID:        1,
+		DateWeek:      time.Now(),
+		DateSubmitted: time.Now(),
+	}
+	timesheetJson, _ := json.Marshal(timesheet)
+
+	// setup request and add auth header
+	req, _ := http.NewRequest("POST", endpoint, bytes.NewBuffer(timesheetJson))
+	req.Header.Set("Authorization", "Bearer "+token)
+
+	// send request
+	resp, err := c.http.Do(req)
+	if err != nil {
+		panic(err)
+	}
+	defer resp.Body.Close()
+
+	// check response code
+	if resp.StatusCode != 200 {
+		panic(errors.New("post timesheet bad response code"))
+	}
+
+	// unmarshal response
+	var success bool
+	if err := json.NewDecoder(resp.Body).Decode(&success); err != nil {
+		panic(err)
+	}
+
+	fmt.Println(success)
+}
+
+// getTimesheets - test GET /timesheet
+func (c *client) getTimesheets(token string) {
+
+	endpoint := c.serverUrl + "/timesheets?userId=1"
 
 	// setup request and add auth header
 	req, _ := http.NewRequest("GET", endpoint, nil)
@@ -56,55 +114,20 @@ func (c *client) getUser(token string) {
 	// send request
 	resp, err := c.http.Do(req)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	defer resp.Body.Close()
+
+	// check response code
+	if resp.StatusCode != 200 {
+		panic(errors.New("get timesheets bad response code"))
+	}
 
 	// unmarshal response into map to account for possible error message
-	body := map[string]any{}
-	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
-		log.Fatal(err)
+	timesheets := []models.Timesheet{}
+	if err := json.NewDecoder(resp.Body).Decode(&timesheets); err != nil {
+		panic(err)
 	}
 
-	// check response code
-	if resp.StatusCode != 200 {
-		err = errors.New(body["error_message"].(string))
-		log.Fatal(err)
-	}
-
-	log.Info(body)
-}
-
-// postUser - sends an authenticated post request to the /user endpoint
-func (c *client) postUser(token string) {
-
-	endpoint := c.serverUrl + "/user"
-
-	user := &models.User{Name: "userNameHere"}
-	userJson, _ := json.Marshal(user)
-
-	// setup request and add auth header
-	req, _ := http.NewRequest("POST", endpoint, bytes.NewBuffer(userJson))
-	req.Header.Set("Authorization", "Bearer "+token)
-
-	// send request
-	resp, err := c.http.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer resp.Body.Close()
-
-	// unmarshal response
-	body := map[string]any{}
-	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
-		log.Fatal(err)
-	}
-
-	// check response code
-	if resp.StatusCode != 200 {
-		err = errors.New(body["error_message"].(string))
-		log.Fatal(err)
-	}
-
-	log.Info(body)
+	fmt.Printf("%+v", timesheets)
 }

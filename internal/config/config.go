@@ -15,6 +15,13 @@ type Config struct {
 	ServerPort int    `json:"server_port"`
 	LogLevel   string `json:"log_level"`
 
+	// database information
+	DbUrl      string `json:"db_url"`
+	DbPort     int    `json:"db_port"`
+	DbName     string `json:"db_name"`
+	DbUsername string `json:"db_username"`
+	DbPassword string `json:"db_password"`
+
 	// auth information
 	TokenKey     string `json:"token_key"`
 	TokenIssuer  string `json:"token_issuer"`
@@ -30,13 +37,7 @@ func Load() (*Config, error) {
 	// }
 
 	// return dummy secret
-	secretJson := []byte(`{
-		"server_port": 4000,
-		"log_level": "debug",
-		"token_key": "tokenEncryptionKey",
-		"token_issuer": "tokenIssuer",
-		"token_timeout": 60
-	}`)
+	secretJson := dummySecret()
 
 	cfg := &Config{}
 	if err := json.Unmarshal([]byte(secretJson), cfg); err != nil {
@@ -44,4 +45,19 @@ func Load() (*Config, error) {
 	}
 
 	return cfg, nil
+}
+
+func dummySecret() []byte {
+	return []byte(`{
+		"server_port": 4000,
+		"log_level": "debug",
+		"db_url": "localhost",
+		"db_port": 5001,
+		"db_name": "go-server-database",
+		"db_username": "go-server-admin",
+		"db_password": "go-server-password",
+		"token_key": "tokenEncryptionKey",
+		"token_issuer": "tokenIssuer",
+		"token_timeout": 60
+	}`)
 }

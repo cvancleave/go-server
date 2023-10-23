@@ -2,15 +2,19 @@ package utils
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt"
 )
 
-func NewToken(userID, key, issuer string, timeout int) (string, error) {
+func NewToken(email string, userId int, key, issuer string, timeout int) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		Id:        userID,
+		Id:        strconv.Itoa(userId),
+		Audience:  email,
 		Issuer:    issuer,
 		ExpiresAt: time.Now().Add(time.Duration(timeout) * time.Minute).Unix(),
 	})
@@ -37,9 +41,16 @@ func ValidateToken(token, key, issuer string) error {
 		return fmt.Errorf("invalid token")
 	}
 
+	// get user claims
 	claims, ok := parsedToken.Claims.(jwt.MapClaims)
 	if !ok {
 		return fmt.Errorf("invalid claims")
+	}
+
+	// validate issuer
+	iss, ok := claims["iss"].(string)
+	if !ok || iss != issuer {
+		return fmt.Errorf("invalid issuer")
 	}
 
 	// validate expiration unix datetime
@@ -53,4 +64,15 @@ func ValidateToken(token, key, issuer string) error {
 	}
 
 	return nil
+}
+
+func GetTokenFromRequest(r *http.Request) (string, error) {
+
+	tokenHeader, tokenOk := r.Header["Authorization"]
+	if !tokenOk {
+		return "", fmt.Errorf("missing auth header")
+	}
+
+	// request Authorization header should look like 'Bearer <jwt here>'
+	return strings.Split(tokenHeader[0], "Bearer ")[1], nil
 }
