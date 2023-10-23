@@ -1,9 +1,9 @@
 # go-server
 
-This application is an basic implementation an API server in Go.
+This application is an basic implementation of an API server in Go.
 It includes:
-- JWT auth and validation.
-- Terraform for infrastructure.
+- JWT authentication and validation.
+- Terraform and AWS for infrastructure.
 - Github actions for deployments.
 - Dockerfile for multi-step server build.
 - SQL database integration.
@@ -17,13 +17,13 @@ Uses Go version `1.21` and the following packages:
 ## Running the server
 
 Get config and start server.
-- Setup server config in AWS secretsmanager.
+- Setup server config in AWS secretsmanager (or dummy config).
 - Run `go run cmd/server/main.go`
 
 ## Running the client
 
-Get config and start client, which creates a token and then hits the server endpoints.
-- Make sure server config is setup in AWS secretsmanager.
+Get config and start client, which tests the server endpoints.
+- Make sure server config is setup in AWS secretsmanager (or dummy config).
 - Run `go run cmd/client/main.go`
 
 ## Migrating the database
